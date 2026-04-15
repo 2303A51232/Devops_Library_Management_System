@@ -19,7 +19,7 @@ if (!fs.existsSync(uploadsDir)) {
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:5500', 'http://localhost:5500'],
+  origin: ['http://localhost:3000', 'http://127.0.0.1:5500', 'http://localhost:5500', 'http://localhost:5002'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -28,6 +28,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // Static files - uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Static files - frontend
+app.use(express.static(path.join(__dirname, '../frontend/public')));
 
 // Serve frontend if exists
 const frontendPath = path.join(__dirname, '../frontend/public');
@@ -62,7 +65,7 @@ app.get('*', (req, res) => {
 // Error handler (must be last)
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5002;
 const server = app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
   console.log(` Library Management System API`);

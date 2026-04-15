@@ -1,45 +1,34 @@
-// Global error handler
 const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
-  console.error('Error:', err);
+  // Log error
+  console.error(err);
 
   // Mongoose bad ObjectId
   if (err.name === 'CastError') {
-    error.message = 'Resource not found';
-    return res.status(404).json({ success: false, message: error.message });
+    const message = 'Resource not found';
+    error = { message, statusCode: 404 };
   }
 
   // Mongoose duplicate key
   if (err.code === 11000) {
-    const field = Object.keys(err.keyValue)[0];
-    error.message = `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`;
-    return res.status(400).json({ success: false, message: error.message });
+    const message = 'Duplicate field value entered';
+    error = { message, statusCode: 400 };
   }
 
   // Mongoose validation error
   if (err.name === 'ValidationError') {
-    error.message = Object.values(err.errors).map(e => e.message).join(', ');
-    return res.status(400).json({ success: false, message: error.message });
+    const message = Object.values(err.errors).map(val => val.message);
+    error = { message, statusCode: 400 };
   }
 
-  // JWT errors
-  if (err.name === 'JsonWebTokenError') {
-    return res.status(401).json({ success: false, message: 'Invalid token' });
-  }
-
-  if (err.name === 'TokenExpiredError') {
-    return res.status(401).json({ success: false, message: 'Token expired' });
-  }
-
-  res.status(err.statusCode || 500).json({
+  res.status(error.statusCode || 500).json({
     success: false,
-    message: error.message || 'Internal Server Error'
+    error: error.message || 'Server Error'
   });
 };
 
-// Async error wrapper
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
