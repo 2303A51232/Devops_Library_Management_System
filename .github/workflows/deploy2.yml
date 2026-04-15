@@ -1,0 +1,69 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # Show folder structure (DEBUG)
+      - name: Show Project Structure
+        run: ls -R
+
+      # Install dependencies (auto detect)
+      - name: Install Dependencies
+        run: |
+          if [ -d "backend" ]; then
+            cd backend
+            npm install
+          elif [ -d "library-system/backend" ]; then
+            cd library-system/backend
+            npm install
+          else
+            echo "❌ Backend folder not found"
+            exit 1
+          fi
+
+      # Install frontend
+      - name: Install Frontend
+        run: |
+          if [ -d "frontend" ]; then
+            cd frontend
+            npm install
+          elif [ -d "library-system/frontend" ]; then
+            cd library-system/frontend
+            npm install
+          else
+            echo "❌ Frontend folder not found"
+            exit 1
+          fi
+
+      # Build frontend
+      - name: Build Frontend
+        run: |
+          if [ -d "frontend" ]; then
+            cd frontend
+            npm run build
+          elif [ -d "library-system/frontend" ]; then
+            cd library-system/frontend
+            npm run build
+          else
+            echo "❌ Frontend folder not found"
+            exit 1
+          fi
+
+      - name: CI Success
+        run: echo "✅ CI Completed Successfully"
