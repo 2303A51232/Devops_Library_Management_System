@@ -1,0 +1,41 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Setup Node.js
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # Install Backend Dependencies
+      - name: Install Backend Dependencies
+        working-directory: backend
+        run: npm install
+
+      # Install Frontend Dependencies
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm install
+
+      # Build Frontend
+      - name: Build React App
+        working-directory: frontend
+        run: npm run build
+
+      # Success message
+      - name: CI Success
+        run: echo "✅ CI Pipeline completed successfully!"
